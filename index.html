@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html ng-app="KomarTestApp">
+
+<head>
+    <title>Separating application</title>
+
+    <script src="libraries/angular.js"></script>
+    <script src="libraries/lodash.core.js"></script>
+    <link href="libraries/bootstrap.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+
+    <script src="js/app.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/orderBookManipulationProvider.js"></script>
+    <script src="js/EQLProvider.js"></script>
+    <script src="js/SPYProvider.js"></script>
+
+</head>
+
+<body ng-controller="TableCtrl" ng-init="init()">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <form class="form-inline" role="form">
+                    <div class="form-group">
+                        <label class="control-label">Выберите глубину стакана</label>
+                            <select class="form-control" ng-model="data.orderBook.lengthLimiter">
+                                <option value="5">5</option>
+                                <option value="15">15</option>
+                                <option value="20">30</option>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Выберите переодичность поступления заявок</label>
+                            <select class="form-control" ng-model="data.orderBook.interval" ng-change="changeInterval()">
+                                <option value="250">0.25 sec</option>
+                                <option value="500">0.50 sec</option>
+                                <option value="750">0.75 sec</option>
+                                <option value="1000">1 sec</option>
+                                <option value="1500">1.5 sec</option>
+                                <option value="2000">2 sec</option>
+                            </select>
+                    </div>
+                </form> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-3">
+                <div class="table-responsive text-center">
+                    <table class="table" order-book="orderBook">
+                        <thead>
+                            <tr class="header">
+                                <td>Stock</td>
+                                <td>Bid</td>
+                                <td>Price</td>
+                                <td>Ask</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="row in data.orderBook.ask">
+                                <td>{{row.Stock}}</td>
+                                <td></td>
+                                <td class="ask">${{row.Price}}</td>
+                                <td class="ask">{{row.Shares}}</td>
+                            </tr>
+                            <tr ng-repeat="row in data.orderBook.bid">
+                                <td>{{row.Stock}}</td>
+                                <td class="bid">{{row.Shares}}</td>
+                                <td class="bid">${{row.Price}}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

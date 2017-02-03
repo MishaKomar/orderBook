@@ -1,0 +1,18 @@
+/* some custom styles */
+
+.header {
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.bid {
+	background-color: #00ff00;
+}
+
+.ask {
+	background-color: #ff0000;
+}
+
+.text-center {
+	text-align: center;
+}
