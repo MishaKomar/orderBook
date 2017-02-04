@@ -23,7 +23,7 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 				return parseFloat(a.Price) < parseFloat(b.Price)
 			}
 			function sortB (a,b){
-				return parseFloat(a.Price) > parseFloat(b.Price)
+				return parseFloat(a.Price) < parseFloat(b.Price)
 			}
 
 		 	function getIndex(orderBook, data){
@@ -48,7 +48,6 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 		    }
 
 		    function addData(orderBook, data){
-		 		if (orderBook.ask.length + orderBook.bid.length < orderBook.lengthLimiter){
 		 			if (data.Side == 'S'){
 		    			orderBook.ask.push(data);	
 		    			orderBook.ask.sort(sortS);	
@@ -58,7 +57,6 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 		    			orderBook.bid.sort(sortB);	
 		        	}
 		        	console.log("ADD" + JSON.stringify(data));
-		 		}
 		 	}
 
 		 	function deleteData(orderBook, data) {
