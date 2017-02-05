@@ -19,11 +19,27 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 
 	        return service;
 
-	        function sortS (a,b){
+	        function sortByPrice (a,b){
 				return parseFloat(a.Price) < parseFloat(b.Price)
 			}
-			function sortB (a,b){
-				return parseFloat(a.Price) < parseFloat(b.Price)
+
+			function insertData(array, data){
+				if (array.length > 0){
+					var isPushed = false;
+					if (data.Price == "210.2100")
+						var a = 1;
+					for (var i = 0; i < array.length; i++) {
+						if(sortByPrice(array[i], data)){
+							array.splice(i,0,data);
+							isPushed = true;
+							return;
+						}
+					}
+					if (!isPushed)
+						array.push(data);
+				} else {
+					array.push(data);
+				}
 			}
 
 		 	function getIndex(orderBook, data){
@@ -49,12 +65,9 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 
 		    function addData(orderBook, data){
 		 			if (data.Side == 'S'){
-		    			orderBook.ask.push(data);	
-		    			orderBook.ask.sort(sortS);	
-		        	}
-		        	else if (data.Side == 'B'){
-		    			orderBook.bid.push(data);
-		    			orderBook.bid.sort(sortB);	
+		 				insertData(orderBook.ask, data);
+		        	} else if (data.Side == 'B'){
+		 				insertData(orderBook.bid, data);
 		        	}
 		        	console.log("ADD" + JSON.stringify(data));
 		 	}
@@ -70,76 +83,80 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 
 		 	function replaceData(orderBook, data) {
 		 		var indexObject = getIndex(orderBook, data);
-		 		if (indexObject && indexObject.array == "bid"){
-					orderBook.bid[indexObject.index].OrderID = data.NewOrderID;
-					if (orderBook.bid[indexObject.index].Price != data.Price){
-						orderBook.bid[indexObject.index].Price = data.Price;
-						orderBook.bid.sort(sortB); 								// can be better
+		 		function replace(array, index, data){
+		 			var item = array[index];
+
+					item.OrderID = data.NewOrderID;
+					item.Shares = data.Shares;
+					item.Type = data.Type;
+					if (item.Price != data.Price){
+						item.Price = data.Price;
+						array.splice(index, 1); 													
+						insertData(array, item);
 					}
-					orderBook.bid[indexObject.index].Shares = data.Shares;
-					orderBook.bid[indexObject.index].Type = data.Type;
+		 		};
+		 		if (indexObject && indexObject.array == "bid"){
+					replace(orderBook.bid, indexObject.index, item);
 				}
 	    		else if (indexObject && indexObject.array == "ask"){
-	    			orderBook.ask[indexObject.index].OrderID = data.NewOrderID;
-					if (orderBook.ask[indexObject.index].Price != data.Price){
-						orderBook.ask[indexObject.index].Price = data.Price;
-						orderBook.ask.sort(sortS);								// can be better
-					}
-					orderBook.ask[indexObject.index].Shares = data.Shares;
-					orderBook.ask[indexObject.index].Type = data.Type;
+					replace(orderBook.ask, indexObject.index, item);
 	    		}
 	        	console.log("REPLACE" + JSON.stringify(data));
 		 	}
 
 		 	function cancelData(orderBook, data) {
 		 		var indexObject = getIndex(orderBook, data);
-		 		if (indexObject && indexObject.array == "bid"){
-					orderBook.bid[indexObject.index].Shares = orderBook.bid[indexObject.index].Shares - data.CanceledShares;
-					orderBook.bid[indexObject.index].Type = data.Type;
-				}
-	    		else if (indexObject && indexObject.array == "ask"){
-					orderBook.ask[indexObject.index].Shares = orderBook.ask[indexObject.index].Shares - data.CanceledShares;
-					orderBook.ask[indexObject.index].Type = data.Type;
-	    		}
+		 		function cancel(array, index, data) {
+		 			var item = array[index];
+
+		 			item.Shares = item.Shares - data.CanceledShares;
+					item.Type = data.Type;
+		 		}
+		 		if (indexObject && indexObject.array == "bid")
+					cancel(orderBook.bid, indexObject.index, data);
+	    		else if (indexObject && indexObject.array == "ask")
+					cancel(orderBook.ask, indexObject.index, data);
+	    		
 	        	console.log("CANCEL" + JSON.stringify(data));
 		 	}
 
 		 	function executedData(orderBook, data) {
 		 		var indexObject = getIndex(orderBook, data);
-		 		if (indexObject && indexObject.array == "bid"){
-					orderBook.bid[indexObject.index].Shares = orderBook.bid[indexObject.index].Shares - data.ExecutedShares;
-					orderBook.bid[indexObject.index].Type = data.Type;
-					if (orderBook.bid[indexObject.index].Shares <= 0){
-						orderBook.bid.splice(indexObject.index, 1);
+		 		function executed(array, index, data) {
+		 			var item = array[index];
+
+		 			item.Shares = item.Shares - data.ExecutedShares;
+					item.Type = data.Type;
+					if (item.Shares <= 0){
+						array.splice(index, 1);
 					}
+		 		}
+		 		if (indexObject && indexObject.array == "bid"){
+					executed(orderBook.bid, indexObject.index, data);
 				}
 	    		else if (indexObject && indexObject.array == "ask"){
-					orderBook.ask[indexObject.index].Shares = orderBook.ask[indexObject.index].Shares - data.ExecutedShares;
-					orderBook.ask[indexObject.index].Type = data.Type;
-					if (orderBook.ask[indexObject.index].Shares <= 0){
-						orderBook.ask.splice(indexObject.index, 1);
-					}
+					executed(orderBook.ask, indexObject.index, data);
 	    		}
 	        	console.log("EXECUTED" + JSON.stringify(data));
 		 	}
 
 		 	function executedWithPriceData(orderBook, data) {
 		 		var indexObject = getIndex(orderBook, data);
-		 		if (indexObject && indexObject.array == "bid"){
-					orderBook.bid[indexObject.index].Shares = orderBook.bid[indexObject.index].Shares - data.ExecutedShares;
-					orderBook.bid[indexObject.index].Price = ExecutionPrice;
-					orderBook.bid[indexObject.index].Type = data.Type;
-					if (orderBook.bid[indexObject.index].Shares <= 0){
-						orderBook.bid.splice(indexObject.index, 1);
+		 		function executedWithPrice(array, index, data) {
+		 			var item = array[index];
+
+		 			item.Shares = item.Shares - data.ExecutedShares;
+					item.Price = data.ExecutionPrice;
+					item.Type = data.Type;
+					if (item.Shares <= 0){
+						array.splice(index, 1);
 					}
+		 		}
+		 		if (indexObject && indexObject.array == "bid"){
+					executedWithPrice(orderBook.bid, index, data);
 				}
 	    		else if (indexObject && indexObject.array == "ask"){
-					orderBook.ask[indexObject.index].Shares = orderBook.ask[indexObject.index].Shares - data.ExecutedShares;
-					orderBook.ask[indexObject.index].Price = data.ExecutionPrice;
-					orderBook.ask[indexObject.index].Type = data.Type;
-					if (orderBook.ask[indexObject.index].Shares <= 0){
-						orderBook.ask.splice(indexObject.index, 1);
-					}
+					executedWithPrice(orderBook.ask, index, data);
 	    		}
 	        	console.log("EXECUTED_WITH_PRICE" + JSON.stringify(data));
 		 	}
