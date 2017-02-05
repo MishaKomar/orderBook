@@ -93,12 +93,11 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 						insertData(array, item);
 					}
 		 		};
-		 		if (indexObject && indexObject.array == "bid"){
-					replace(orderBook.bid, indexObject.index, item);
-				}
-	    		else if (indexObject && indexObject.array == "ask"){
-					replace(orderBook.ask, indexObject.index, item);
-	    		}
+		 		if (indexObject && indexObject.array == "bid")
+					replace(orderBook.bid, indexObject.index, data);
+	    		else if (indexObject && indexObject.array == "ask")
+					replace(orderBook.ask, indexObject.index, data);
+	    		
 	        	console.log("REPLACE" + JSON.stringify(data));
 		 	}
 
@@ -129,12 +128,11 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 						array.splice(index, 1);
 					}
 		 		}
-		 		if (indexObject && indexObject.array == "bid"){
+		 		if (indexObject && indexObject.array == "bid")
 					executed(orderBook.bid, indexObject.index, data);
-				}
-	    		else if (indexObject && indexObject.array == "ask"){
+	    		else if (indexObject && indexObject.array == "ask")
 					executed(orderBook.ask, indexObject.index, data);
-	    		}
+	    	
 	        	console.log("EXECUTED" + JSON.stringify(data));
 		 	}
 
@@ -150,12 +148,11 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 						array.splice(index, 1);
 					}
 		 		}
-		 		if (indexObject && indexObject.array == "bid"){
-					executedWithPrice(orderBook.bid, index, data);
-				}
-	    		else if (indexObject && indexObject.array == "ask"){
-					executedWithPrice(orderBook.ask, index, data);
-	    		}
+		 		if (indexObject && indexObject.array == "bid")
+					executedWithPrice(orderBook.bid, indexObject.index, data);
+	    		else if (indexObject && indexObject.array == "ask")
+					executedWithPrice(orderBook.ask, indexObject.index, data);
+	    
 	        	console.log("EXECUTED_WITH_PRICE" + JSON.stringify(data));
 		 	}
         };
