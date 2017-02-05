@@ -51,7 +51,7 @@ module.controller("TableCtrl", TableCtrl);
 		}
 
 		$scope.changeInterval = function (name) {
-			if (name == "PSY" || name == "EQL"){
+			if (name == "SPY" || name == "EQL"){
 				$interval.cancel($scope.data.orderBooks[name].intervalObj);
 				$scope.data.orderBooks[name].intervalObj = initInterval($scope.data.orderBooks[name]);
 	    	    console.log(name + " interval changed");

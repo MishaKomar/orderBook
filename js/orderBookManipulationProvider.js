@@ -26,8 +26,6 @@ module.factory("orderBookManipulationProvider", orderBookManipulationProvider);
 			function insertData(array, data){
 				if (array.length > 0){
 					var isPushed = false;
-					if (data.Price == "210.2100")
-						var a = 1;
 					for (var i = 0; i < array.length; i++) {
 						if(sortByPrice(array[i], data)){
 							array.splice(i,0,data);
