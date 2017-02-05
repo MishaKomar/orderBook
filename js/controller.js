@@ -12,80 +12,86 @@ module.controller("TableCtrl", TableCtrl);
 	];
 
 	function TableCtrl($scope, $interval, _, EQLProvider, SPYProvider, orderBookManipulationProvider) {
+		
+		var data = [];
+		data["SPY"] = SPYProvider.getData();
+		data["EQL"] = EQLProvider.getData();
+
 		$scope.init = function () {
 			$scope.data = {};
-			$scope.data.SPY = SPYProvider.getData();
-			$scope.data.EQL = EQLProvider.getData();
-			$scope.data.orderBook = initOrderBook(); 
-			$scope.interval = initInterval();
+			$scope.data.orderBooks = [];
+			$scope.data.orderBooks["SPY"] = initOrderBook("SPY"); 
+			$scope.data.orderBooks["EQL"] = initOrderBook("EQL"); 
+			$scope.data.orderBooks["SPY"].intervalObj = initInterval($scope.data.orderBooks["SPY"]);
+			$scope.data.orderBooks["EQL"].intervalObj = initInterval($scope.data.orderBooks["EQL"]);
 		};
 
-		function initInterval() {
+		function initInterval(orderBook) {
 			return $interval(function(){
-				$scope.$emit("NEXT");
-			}, $scope.data.orderBook.interval, 0);
+				$scope.$emit("NEXT", orderBook.name);
+			}, orderBook.intervalSec, 0);
 		}
 
-		function initOrderBook() {
+		function initOrderBook(name) {
 			return {
+				name: name,
 				bid: [],
 				ask: [],
-				lengthLimiter: 15, // length of table
-				interval: 1000	   // 1 sec
+				lengthLimiter: 10, // length of table output
+				intervalSec: 1000  // 1 sec
 			};
 		}
 
-		$scope.getNext = function () { // get next item from json
-			if ($scope.data.SPY.length > 0 && $scope.data.EQL.length > 0){
-				
-				var nextSPY = $scope.data.SPY.shift();
-				var nextEQL = $scope.data.EQL.shift();
-				
-				$scope.$emit(nextSPY.Type, nextSPY); // emit event
-				$scope.$emit(nextEQL.Type, nextEQL);
+		$scope.getNext = function (orderBookName) { 
+			if (data[orderBookName].length > 0 && (orderBookName == "SPY" || orderBookName == "EQL")){
+				var item = data[orderBookName].shift(); // get next item from json
+				item.Stock = orderBookName;
+				$scope.$emit(item.Type, item);
 			}
 		}
 
-		$scope.changeInterval = function () {
-			$interval.cancel($scope.interval);
-			$scope.interval = initInterval();
-	        console.log("Сhange interval " + $scope.data.orderBook.interval);
+		$scope.changeInterval = function (name) {
+			if (name == "PSY" || name == "EQL"){
+				$interval.cancel($scope.data.orderBooks[name].intervalObj);
+				$scope.data.orderBooks[name].intervalObj = initInterval($scope.data.orderBooks[name]);
+	    	    console.log(name + " interval changed");
+			}
 		}	 	
 
 	 	/// listeners
-	 	$scope.$on("NEXT", function (event, data) {
-	 		$scope.getNext();
+	 	$scope.$on("NEXT", function (event, orderBookName) {
+	 		$scope.getNext(orderBookName);
 	    });
 
 		$scope.$on("ADD", function (event, data) {
-        	if (!$scope.data.orderBook)
-        		$scope.data.orderBook = initOrderBook();
-        	
-        	orderBookManipulationProvider.add($scope.data.orderBook, data);
+        	if (data.Stock == "SPY" || data.Stock == "EQL")
+        		orderBookManipulationProvider.add($scope.data.orderBooks[data.Stock], data);
 	    });
 
 	    $scope.$on("DELETE", function (event, data) {
-        	if (!$scope.data.orderBook)
-        		initOrderBook();
-
-        	orderBookManipulationProvider.delete($scope.data.orderBook,data);
+        	if (data.Stock == "SPY" || data.Stock == "EQL")
+        		orderBookManipulationProvider.delete($scope.data.orderBooks[data.Stock], data);
 	    });
 
 	    $scope.$on("CANCEL", function (event, data) {
-        	orderBookManipulationProvider.cancel($scope.data.orderBook,data);
+	    	if (data.Stock == "SPY" || data.Stock == "EQL")
+        		orderBookManipulationProvider.cancel($scope.data.orderBooks[data.Stock], data);
 	    });
 
 	    $scope.$on("EXECUTED", function (event, data) {
-        	orderBookManipulationProvider.executed($scope.data.orderBook,data);
+	    	if (data.Stock == "SPY" || data.Stock == "EQL")
+        		orderBookManipulationProvider.executed($scope.data.orderBooks[data.Stock], data);
 	    });
 
 	    $scope.$on("EXECUTED_WITH_PRICE", function (event, data) {
-        	orderBookManipulationProvider.executedWithPrice($scope.data.orderBook,data);
+	    	if (data.Stock == "SPY" || data.Stock == "EQL")
+        		orderBookManipulationProvider.executedWithPrice($scope.data.orderBooks[data.Stock], data);
 	    });
 
 	    $scope.$on("REPLACE", function (event, data) {
 	    	data.OrderID = data.OriginalOrderID;
-        	orderBookManipulationProvider.replace($scope.data.orderBook,data);
+	    	if (data.Stock == "SPY" || data.Stock == "EQL")
+        		orderBookManipulationProvider.replace($scope.data.orderBooks[data.Stock], data);
 	    });
 
 	};

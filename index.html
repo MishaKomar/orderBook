@@ -21,18 +21,20 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-5">
-                <form class="form-inline" role="form">
+                <div class="form-inline">
                     <div class="form-group">
                         <label class="control-label">Выберите глубину стакана</label>
-                            <select class="form-control" ng-model="data.orderBook.lengthLimiter">
+                            <select class="form-control" ng-model="data.orderBooks['SPY'].lengthLimiter">
                                 <option value="5">5</option>
-                                <option value="15">15</option>
-                                <option value="20">30</option>
+                                <option value="7">7</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="100">100</option>
                             </select>
                     </div>
                     <div class="form-group">
                         <label class="control-label">Выберите переодичность поступления заявок</label>
-                            <select class="form-control" ng-model="data.orderBook.interval" ng-change="changeInterval()">
+                            <select class="form-control" ng-model="data.orderBooks['SPY'].intervalSec" ng-change="changeInterval('SPY')">
                                 <option value="250">0.25 sec</option>
                                 <option value="500">0.50 sec</option>
                                 <option value="750">0.75 sec</option>
@@ -41,21 +43,23 @@
                                 <option value="2000">2 sec</option>
                             </select>
                     </div>
-                </form> 
+                </div> 
             </div>
             <div class="col-md-5 col-md-offset-2">
-                <form class="form-inline" role="form">
+                <div class="form-inline">
                     <div class="form-group">
                         <label class="control-label">Выберите глубину стакана</label>
-                            <select class="form-control" ng-model="data.orderBook.lengthLimiter">
+                            <select class="form-control" ng-model="data.orderBooks['EQL'].lengthLimiter">
                                 <option value="5">5</option>
-                                <option value="15">15</option>
-                                <option value="20">30</option>
+                                <option value="7">7</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="100">100</option>
                             </select>
                     </div>
                     <div class="form-group">
                         <label class="control-label">Выберите переодичность поступления заявок</label>
-                            <select class="form-control" ng-model="data.orderBook.interval" ng-change="changeInterval()">
+                            <select class="form-control" ng-model="data.orderBooks['EQL'].intervalSec" ng-change="changeInterval('EQL')">
                                 <option value="250">0.25 sec</option>
                                 <option value="500">0.50 sec</option>
                                 <option value="750">0.75 sec</option>
@@ -64,13 +68,13 @@
                                 <option value="2000">2 sec</option>
                             </select>
                     </div>
-                </form> 
+                </div> 
             </div>
         </div>
         <div class="row">
             <div class="col-md-5">
                 <div class="table-responsive text-center">
-                    <table class="table" order-book="orderBook">
+                    <table class="table">
                         <thead>
                             <tr class="header">
                                 <td>Stock</td>
@@ -80,13 +84,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="row in data.orderBook.ask | limitTo: data.orderBook.lengthLimiter">
+                            <tr ng-repeat="row in data.orderBooks['SPY'].ask | limitTo: data.orderBooks['SPY'].lengthLimiter">
                                 <td>{{row.Stock}}</td>
                                 <td></td>
                                 <td class="ask">${{row.Price}}</td>
                                 <td class="ask">{{row.Shares}}</td>
                             </tr>
-                            <tr ng-repeat="row in data.orderBook.bid | limitTo: data.orderBook.lengthLimiter">
+                            <tr ng-repeat="row in data.orderBooks['SPY'].bid | limitTo: data.orderBooks['SPY'].lengthLimiter">
                                 <td>{{row.Stock}}</td>
                                 <td class="bid">{{row.Shares}}</td>
                                 <td class="bid">${{row.Price}}</td>
@@ -98,7 +102,7 @@
             </div>
             <div class="col-md-5 col-md-offset-2">
                 <div class="table-responsive text-center">
-                    <table class="table" order-book="orderBook">
+                    <table class="table">
                         <thead>
                             <tr class="header">
                                 <td>Stock</td>
@@ -108,13 +112,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="row in data.orderBook.ask | limitTo: data.orderBook.lengthLimiter">
+                            <tr ng-repeat="row in data.orderBooks['EQL'].ask | limitTo: data.orderBooks['EQL'].lengthLimiter">
                                 <td>{{row.Stock}}</td>
                                 <td></td>
                                 <td class="ask">${{row.Price}}</td>
                                 <td class="ask">{{row.Shares}}</td>
                             </tr>
-                            <tr ng-repeat="row in data.orderBook.bid | limitTo: data.orderBook.lengthLimiter">
+                            <tr ng-repeat="row in data.orderBooks['EQL'].bid | limitTo: data.orderBooks['EQL'].lengthLimiter">
                                 <td>{{row.Stock}}</td>
                                 <td class="bid">{{row.Shares}}</td>
                                 <td class="bid">${{row.Price}}</td>
